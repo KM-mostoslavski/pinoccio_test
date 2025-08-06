@@ -3,31 +3,11 @@ from pathlib import Path
 import pinocchio
 
 
-class Motor:
-    def __init__(self, id):
-        self.id = id
-        self.position = ""
-        self.current_command = ""
-
-    def move_motor(self, joint, theta):
-        print(joint)
-        # print(r.x[r.frame1].id)
-        # print(r.y[r.frame2].id)
-
-        # Prints the received command that a real motor will execute
-        print(f"The {joint} joint moved +{theta} degrees")
-
-
 class Robot:
     def __init__(self):
         self.model = ""
         self.data = ""
-        self.frame1 = ""
-        self.frame2 = ""
-        self.motor1 = Motor(1)
-        self.motor2 = Motor(2)
-        x = {}
-        y = {}
+        self.frame = ""
 
     def init(self):
         urdf_filename = "./robot.urdf"
@@ -37,17 +17,12 @@ class Robot:
         # Create data required by the algorithms
         self.data = self.model.createData()
 
-        self.set_frame()
+        self.set_collection_of_angle_q()
 
-    def set_frame(self):
+    def set_collection_of_angle_q(self):
         # Sample a random configuration
         self.frame = pinocchio.randomConfiguration(self.model)
-        print(f"frame: {self.frame.T}")
-        self.linkMotorsToFrame()
-
-    def linkMotorsToFrame(self):
-        self.x = {self.frame1: self.motor1}
-        self.y = {self.frame2: self.motor2}
+        print(f"q: {self.frame.T}")
 
     def forwardKinematics(self):
         # Perform the forward kinematics over the kinematic tree
@@ -63,13 +38,8 @@ class Robot:
                 "{:<24} : {: .2f} {: .2f} {: .2f}".format(name, *oMi.translation.T.flat)
             )
 
-    def moveSomething(self, frame_name, motor):
+    def moveJoint(self):
         print("mv joint")
-        # thing is either:
-        # r.x[r.frame1].id OR
-        # r.y[r.frame2].id
-        motor.move_motor(frame_name, 15)
-        # theThingToMove =
         # theta angle
         # Robot.Frame.moveMotorOfFrame() -> Perfect BUT new Frame class that is kinda useless
         # Robot.moveMotor() -> Which "joint or frame"
@@ -80,11 +50,7 @@ def main():
     r = Robot()
     r.init()
     r.forwardKinematics()
-    print(r.x[r.frame1].id)
-    print(r.y[r.frame2].id)
-
-    # m.move_motor("hi mom")
-    r.moveSomething(r.frame1, r.x[r.motor1.id])
+    r.moveJoint()
 
 
 if __name__ == "__main__":
